@@ -70,7 +70,7 @@ const updateActivity = async (req,res) => {
         if (type && !['productive', 'exercise', 'hobby'].includes(type)) {
             return res.status(400).json({ error: 'Invalid type' });
         }
-        
+
         activity.type = type || activity.type;
         activity.description = description || activity.description;
         activity.duration = duration || activity.duration;
@@ -83,9 +83,27 @@ const updateActivity = async (req,res) => {
     }
 }
 
+const deleteActivity = async (req,res) => {
+    try {
+        const { id } = req.params;
+
+        const activity = await Activity.findByPk(id);
+        if (!activity) {
+          return res.status(404).json({ error: 'Activity not found' });
+        }
+    
+        await activity.destroy();
+    
+        res.status(204).json({ message: 'Activity deleted successfully' });
+    } catch(err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 module.exports = {
     createActivity,
     getAllActivities,
     getSpecificUserActivities,
     updateActivity,
+    deleteActivity,
 }
