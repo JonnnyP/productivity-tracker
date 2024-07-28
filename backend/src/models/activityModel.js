@@ -1,5 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize')
 const sequelize = require('../config/db')
+const User = require('./userModel')
 
 const Activity = sequelize.define('Activity', {
     id: {
@@ -26,11 +27,14 @@ const Activity = sequelize.define('Activity', {
     userId: {
         type: DataTypes.INTEGER,
         references: {
-            model: 'Users',
+            model: User,
             key: 'id',
         },
         allowNull: false,
     },
-}, {})
+})
+
+Activity.belongsTo(User, { foreignKey: 'userId'})
+User.hasMany(Activity, { foreignKey: 'userId'})
 
 module.exports = Activity

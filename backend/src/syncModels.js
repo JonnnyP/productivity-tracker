@@ -1,7 +1,4 @@
-// To sync postgres with users model
-
 const sequelize = require('./config/db')
-const User = require('./models/userModel')
 
 const syncModels = async () => {
     try {
