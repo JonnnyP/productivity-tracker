@@ -12,11 +12,23 @@ const ActivityList = () => {
     return (
         <div>
             <h1>Activities</h1>
-            <ul>
+
+            <table>
+                <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Duration</th>
+                    <th>Date</th>
+                </tr>
                 {activities.map(activity => (
-                    <li key={activity.id}> {activity.description}</li>
+                    <tr>
+                        <td>{activity.type}</td>
+                        <td>{activity.description}</td>
+                        <td>{activity.duration}</td>
+                        <td>{activity.date}</td>
+                    </tr>
                 ))}
-            </ul>
+            </table>
         </div>
     )
 }
