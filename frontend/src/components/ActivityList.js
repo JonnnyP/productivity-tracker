@@ -14,7 +14,7 @@ const ActivityList = () => {
             <h1>Activities</h1>
             <ul>
                 {activities.map(activity => (
-                    <li key={activity.id}>{activity.description}</li>
+                    <li key={activity.id}> {activity.description}</li>
                 ))}
             </ul>
         </div>
