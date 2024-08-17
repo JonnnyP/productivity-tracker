@@ -1,12 +1,15 @@
-import { h } from 'preact'
+import { h, Component} from 'preact'
 import ActivityList from '../components/ActivityList'
 
-const Home = () => (
-    <div>
-        <h1>Home</h1>
-        <p>Welcome!</p>
-        <ActivityList />
-    </div>
-)
+class Home extends Component {
+    render() {
+        return(
+            <div>
+                <h1>Home</h1>
+                <ActivityList />
+            </div>
+        )
+    }
+}
 
 export default Home
