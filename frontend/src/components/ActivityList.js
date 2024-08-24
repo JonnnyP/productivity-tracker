@@ -11,7 +11,7 @@ const ActivityList = () => {
 
     return (
         <div>
-            <h1>Activities</h1>
+            <h2>Activities</h2>
 
             <table>
                 <tr>

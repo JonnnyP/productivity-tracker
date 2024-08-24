@@ -1,7 +1,7 @@
 import { h, Component , render} from 'preact'
 
 class LoginForm extends Component {
-    state = { value: '' } 
+    state = { value: '' }
     
     onSubmit = e => {
         alert("Form Submitted")
