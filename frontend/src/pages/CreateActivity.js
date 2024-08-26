@@ -1,24 +1,55 @@
 import { h, Component , render} from 'preact'
 
 class CreateActivityForm extends Component {
-    state = { value: '' }
+    state = { 
+        type: '',
+        description: '',
+        duration: '',
+    }
     
-    onSubmit = e => {
-        alert("Form Submitted")
+    handleChange = e => {
+        this.setState({ [e.target.name]: e.currentTarget.value })
+    }
+
+    handleSubmit = async (e) => {
         e.preventDefault()
+        
+        const {type, description, duration } = this.state
+        const userId = 3
+        const data = {type, description, duration, userId}
+
+        try {
+            const response = await fetch ('http://localhost:5001/api/activities/createNewActivity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+
+            if(response.ok) {
+                const jsonResponse = await response.json()
+                console.log('Activity created:', jsonResponse)
+                this.setState({type: '', description: '', duration: ''})
+            } else {
+                console.error('Error', error)
+            }
+
+        } catch (error) {
+            console.log("Error: ", error)
+        }
     }
 
-    onInput = e => {
-        this.setState({ value: e.currentTarget.value })
-    }
+    render() {
 
-    render(_, {value}) {
+        const {type, description, duration } = this.state
+
         return(
             <div>
                 <h2>Add New Acitivity</h2>
-                <form onSubmit={this.onSubmit}>
+                <form onSubmit={this.handleSubmit}>
                     <label>Type </label> <br></br>
-                    <select value={value} onChange={this.onChange}>
+                    <select name="type" value={type} onChange={this.handleChange}>
                         <option value="productive">productive</option>
                         <option value="exercise">exercise</option>
                         <option value="hobby">hobby</option>
@@ -28,12 +59,12 @@ class CreateActivityForm extends Component {
                     </select>
                     <br></br><br></br>
                     <label>Description </label><br></br>
-                    <textarea type="text" value={value} onInput={this.onInput} />
+                    <textarea type="text" name="description" value={description} onChange={this.handleChange} />
                     <br></br><br></br>
                     <label>Duration (Minutes) </label><br></br>
-                    <input type="number" id="duration" name="duration" min="1" max="120" />
+                    <input type="number" name="duration" value={duration} onChange={this.handleChange} min="1" max="120"  />
                     <br></br><br></br>
-                    <button type="submit">Submit</button>
+                    <button type="submit">Create Activity</button>
                 </form>
             </div>
         )
