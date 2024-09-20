@@ -1,0 +1,14 @@
+.header {
+    background-color: grey;
+}
+
+a {
+    display: inline-block;
+    margin: 6px;
+    text-decoration: none;
+    color: black;
+}
+
+body {
+    margin: 0;
+}

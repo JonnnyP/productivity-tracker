@@ -1,4 +1,6 @@
 import { h, Component , render} from 'preact'
+import  { route } from 'preact-router'
+import Header from '../components/Header'
 
 class CreateActivityForm extends Component {
     state = { 
@@ -31,6 +33,7 @@ class CreateActivityForm extends Component {
                 const jsonResponse = await response.json()
                 console.log('Activity created:', jsonResponse)
                 this.setState({type: '', description: '', duration: ''})
+                route('/');
             } else {
                 console.error('Error', error)
             }
@@ -46,7 +49,8 @@ class CreateActivityForm extends Component {
 
         return(
             <div>
-                <h2>Add New Acitivity</h2>
+                <Header />
+                <h1>Add New Acitivity</h1>
                 <form onSubmit={this.handleSubmit}>
                     <label>Type </label> <br></br>
                     <select name="type" value={type} onChange={this.handleChange}>
