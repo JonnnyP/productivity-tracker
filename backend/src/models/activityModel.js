@@ -17,8 +17,23 @@ const Activity = sequelize.define('Activity', {
         allowNull: true,
     },
     date: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        type: DataTypes.DATE, // Store the date with time
+        allowNull: false,
+        get() {
+            const rawDate = this.getDataValue('date');
+            if (!rawDate) return null;
+            // Format the date to a more human-readable format, including 12-hour time
+            const options = {
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: 'numeric', 
+                minute: 'numeric', 
+                hour12: true // Ensures 12-hour format
+            };
+            return rawDate.toLocaleString('en-US', options);
+        }
     },
     duration: {
         type: DataTypes.INTEGER,
