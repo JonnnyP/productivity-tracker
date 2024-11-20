@@ -9,8 +9,10 @@ app.use(cors({
 }))
 const userRoutes = require('./routes/userRoutes')
 const activityRoutes = require('./routes/activityRoutes')
+const statsRoutes = require('./routes/statsRoutes')
 
 app.use('/api/users', userRoutes)
 app.use('/api/activities', activityRoutes)
+app.use('/api/stats', statsRoutes)
 
 module.exports = app
