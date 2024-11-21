@@ -57,6 +57,7 @@ const getStats = async (req, res) => {
             mostFrequentType,
             groupedData,
         })
+        
     } catch(err) {
         res.status(500).json({ error: err.message })
     }
