@@ -19,6 +19,7 @@ const Activity = sequelize.define('Activity', {
     date: {
         type: DataTypes.DATE, // Store the date with time
         allowNull: false,
+        defaultValue: Sequelize.NOW,
         get() {
             const rawDate = this.getDataValue('date');
             if (!rawDate) return null;

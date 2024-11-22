@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell } from 'recharts'
 import Header from '../components/Header'
 import StatsContext from '../contexts/StatsContext';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#b0ffdb'];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF4242', '#AA42ff'];
   
 const Stats = () => {
     const { stats, loading } = useContext(StatsContext)
@@ -14,15 +14,16 @@ const Stats = () => {
 
     const data = stats.groupedData.map((item, index) => ({
         name: item.type || `Type ${index + 1}`,
-        value: item.totalDuration || 0,
+        value: parseInt(item.totalDuration) || 0,
     }));
 
     console.log(data)
+    
     return (
         <div>
             <Header />
             <h1>Stats</h1>
-            <PieChart width={300} height={300}>
+            <PieChart width={200} height={200}>
                 <Pie
                     data={data}
                     dataKey="value" // Required: specifies the property for the value
