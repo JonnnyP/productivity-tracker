@@ -4,37 +4,67 @@ import { useState, useEffect } from 'preact/hooks'
 const StatsContext = createContext()
 
 export const StatsProvider = ({ children }) => {
-    const [stats, setStats] = useState(null)
-    const [loading, setLoading] = useState(true)
+    // const [stats, setStats] = useState(null)
 
-    const fetchStats = async () => {
+    const [statsByType, setStatsByType] = useState(null)
+    const [statsByDayAndType,  setStatsByDayAndType] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null)
+
+    const fetchStatsByType = async () => {
         try {
             setLoading(true)
             const response = await fetch('http://localhost:5001/api/stats?groupBy=type')
 
-            if(response.ok) {
-                const data = await response.json()
-                setStats(data)    
-            } else {
-                console.error('Failed to fetch stats')
-            }
-        } catch (error) {
-            console.error('Error fetching stats: ', error)
+            if(!response.ok) throw new Error('Failed to fetch stats by type')
+            const data = await response.json()
+            setStatsByType(data)
+        } catch (err) {
+            setError(err.message)
         } finally {
             setLoading(false)
         }
     }
 
-    const updateStats = async () => {
-        await fetchStats()
+    const fetchStatsByDayAndType = async () => {
+        try {
+            setLoading(true)
+            const response = await fetch('http://localhost:5001/api/stats?groupBy=dayandtype')
+
+            if(!response.ok) throw new Error('Failed to fetch stats by day and type')
+            const data = await response.json()
+            setStatsByDayAndType(data)
+        } catch (err) {
+            setError(err.message)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const fetchAllStats = async() => {
+        await Promise.all([fetchStatsByType(), fetchStatsByDayAndType()])
+    }
+
+    const updateStats = async (options = {}) => {
+        await fetchAllStats(options)
     }
 
     useEffect(() => {
-        fetchStats()
+        fetchAllStats()
     }, [])
 
     return (
-        <StatsContext.Provider value={{ stats, loading, updateStats }}>
+        <StatsContext.Provider 
+            value={{ 
+                statsByType,
+                statsByDayAndType,
+                loading,
+                error,
+                fetchStatsByType,
+                fetchStatsByDayAndType,
+                updateStats
+            }}
+        >
             {children}
         </StatsContext.Provider>
     )

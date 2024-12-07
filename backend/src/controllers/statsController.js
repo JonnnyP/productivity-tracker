@@ -7,6 +7,7 @@ const getStats = async (req, res) => {
         const { type, dateRange, groupBy } = req.query
 
         const where = {}
+        let responseData = {}
 
         if(dateRange) {
             const [start, end] = dateRange.split(',')
@@ -31,7 +32,7 @@ const getStats = async (req, res) => {
 
         let groupedData = []
         if(groupBy === 'day') {
-            groupedData = await Activity.findAll({
+            const groupedByDay = await Activity.findAll({
                 attributes: [
                     [sequelize.fn('DATE', sequelize.col('date')), 'day'],
                     [sequelize.fn('COUNT', sequelize.col('*')), 'activityCount']
@@ -39,8 +40,11 @@ const getStats = async (req, res) => {
                 where,
                 group: ['day']
             })
+
+            responseData = groupedByDay
+
         } else if (groupBy === 'type') {
-            groupedData = await Activity.findAll({
+            const groupedByType = await Activity.findAll({
                 attributes: [
                     'type',
                     [sequelize.fn('SUM', sequelize.col('duration')), 'totalDuration'],
@@ -49,13 +53,32 @@ const getStats = async (req, res) => {
                 where,
                 group: ['type']
             })
+
+            responseData = groupedByType
+        } else if (groupBy === 'dayandtype' || groupBy === 'all') {
+            const groupedByDayAndType = await Activity.findAll({
+                attributes: [
+                    [sequelize.fn('DATE', sequelize.col('date')), 'day'],
+                    'type',
+                    [sequelize.fn('SUM', sequelize.col('duration')), 'totalDuration'],
+                    // [sequelize.fn('COUNT', sequelize.col('id')), 'activityCount'],
+                ],
+                group: [sequelize.fn('DATE', sequelize.col('date')), 'type'],
+                order: [[sequelize.fn('DATE', sequelize.col('date')), 'ASC']]
+            })
+
+            responseData = groupedByDayAndType.map((row) => ({
+                day: row.dataValues.day,
+                type: row.type,
+                duration: Number(row.dataValues.totalDuration),
+            }))
         }
 
         res.json({
             totalActivites,
             totalDuration,
             mostFrequentType,
-            groupedData,
+            responseData,
         })
         
     } catch(err) {
