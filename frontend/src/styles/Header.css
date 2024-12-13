@@ -1,5 +1,9 @@
 .header {
-    background-color: #b0ffdb;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
 }
 
 a {

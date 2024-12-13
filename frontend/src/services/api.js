@@ -2,7 +2,7 @@
 const API_URL = 'http://localhost:5001/api'
 
 const getAllActivities = async () => {
-    const response = await fetch(`${API_URL}/activities`)
+    const response = await fetch(`${API_URL}/activities/user/3`)
     return await response.json()
 }
 

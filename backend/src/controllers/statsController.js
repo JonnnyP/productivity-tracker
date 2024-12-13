@@ -3,7 +3,7 @@ const User = require('../models/userModel')
 const { Op } = require('sequelize')
 const sequelize = require('../config/db')
 
-const buildWhereClause = (type, dateRange) => {
+const buildWhereClause = (type, dateRange, userId) => {
     const where = {}
     
     if(dateRange) {
@@ -12,6 +12,8 @@ const buildWhereClause = (type, dateRange) => {
     }
 
     if(type) where.type = type
+
+    if(userId) where.userId = userId
 
     return where
 }
@@ -67,9 +69,10 @@ const fetchGroupedByDayandType = async (where) => {
 
 const getStats = async (req, res) => {
     try {
+        const { userId } = req.params
         const { type, dateRange, groupBy } = req.query
 
-        const where = buildWhereClause(type, dateRange)
+        const where = buildWhereClause(type, dateRange, userId)
         const { totalActivites, totalDuration } = await fetchTotalStats(where)
 
         let responseData;

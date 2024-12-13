@@ -1,6 +1,7 @@
 import { h } from 'preact'
 import { useState, useEffect } from 'preact/hooks'
 import { getAllActivities } from '../services/api'
+import '../styles/ActivityList.css'
 
 const ActivityList = () => {
     const [activities, setActivities] = useState([])
