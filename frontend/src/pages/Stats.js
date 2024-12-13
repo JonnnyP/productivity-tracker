@@ -18,7 +18,7 @@ import {
 } from 'recharts'
 
 const activityTypes = ["productive", "exercise", "learning", "reading", "mindful", "hobby"];
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF4242', '#AA42ff'];
+const COLORS        = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF4242', '#AA42ff'];
   
 const Stats = () => {
     const {
@@ -85,7 +85,7 @@ const Stats = () => {
             <ResponsiveContainer width={"98%"} height={300}>
             <Header />
             <h1>Stats</h1>
-            <h3>Activity distributed by time</h3>
+            <h3>Activities distributed by time</h3>
             
             <PieChart width={300} height={300}>
                 <Pie

@@ -1,88 +1,102 @@
 const Activity = require('../models/activityModel')
+const User = require('../models/userModel')
 const { Op } = require('sequelize')
 const sequelize = require('../config/db')
+
+const buildWhereClause = (type, dateRange) => {
+    const where = {}
+    
+    if(dateRange) {
+        const [start, end] = dateRange.split(',')
+        where.date = { [Op.between]: [new Date(start), new Date(end)] }
+    }
+
+    if(type) where.type = type
+
+    return where
+}
+
+const fetchTotalStats = async (where) => {
+    const totalActivites = await Activity.count({ where })
+    const totalDuration = await Activity.sum('duration', { where })
+
+    return { totalActivites, totalDuration }
+}
+
+const fetchGroupedByDay = async (where) => {
+    return await Activity.findAll({
+        attributes: [
+            [sequelize.fn('DATE', sequelize.col('date')), 'day'],
+            [sequelize.fn('COUNT', sequelize.col('*')), 'activityCount'],
+        ],
+        where,
+        group: ['day'],
+    })
+}
+
+const fetchGroupedByType = async(where) => {
+    return await Activity.findAll({
+        attributes: [
+            'type',
+            [sequelize.fn('SUM', sequelize.col('duration')), 'totalDuration'],
+            [sequelize.fn('COUNT', sequelize.col('*')), 'count'],
+        ],
+        where,
+        group: ['type']
+    })
+}
+
+const fetchGroupedByDayandType = async (where) => {
+    const data = await Activity.findAll({
+        attributes: [
+            [sequelize.fn('DATE', sequelize.col('date')), 'day'],
+            'type',
+            [sequelize.fn('SUM', sequelize.col('duration')), 'totalDuration'],
+        ],
+        where,
+        group: [sequelize.fn('DATE', sequelize.col('date')), 'type'],
+        order: [[sequelize.fn('DATE', sequelize.col('date')), 'ASC']],
+    })
+
+    return data.map((row) => ({
+        day: row.dataValues.day,
+        type: row.type,
+        duration: Number(row.dataValues.totalDuration),
+    }))
+}
 
 const getStats = async (req, res) => {
     try {
         const { type, dateRange, groupBy } = req.query
 
-        const where = {}
-        let responseData = {}
+        const where = buildWhereClause(type, dateRange)
+        const { totalActivites, totalDuration } = await fetchTotalStats(where)
 
-        if(dateRange) {
-            const [start, end] = dateRange.split(',')
-            where.date = { [Op.between]: [new Date(start), new Date(end)] }
-        }
+        let responseData;
 
-        if(type) {
-            where.type = type
-        }
-
-        const totalActivites = await Activity.count({ where })
-        const totalDuration = await Activity.sum('duration', { where })
-
-        const typeCounts = await Activity.findAll({
-            attributes: ['type', [sequelize.fn('COUNT', sequelize.col('type')), 'count']],
-            where,
-            group: ['type'],
-            order: [[sequelize.fn('COUNT', sequelize.col('type')), 'DESC']],
-        })
-
-        const mostFrequentType = typeCounts.length > 0 ? typeCounts[0].type: null
-
-        let groupedData = []
-        if(groupBy === 'day') {
-            const groupedByDay = await Activity.findAll({
-                attributes: [
-                    [sequelize.fn('DATE', sequelize.col('date')), 'day'],
-                    [sequelize.fn('COUNT', sequelize.col('*')), 'activityCount']
-                ],
-                where,
-                group: ['day']
-            })
-
-            responseData = groupedByDay
-
-        } else if (groupBy === 'type') {
-            const groupedByType = await Activity.findAll({
-                attributes: [
-                    'type',
-                    [sequelize.fn('SUM', sequelize.col('duration')), 'totalDuration'],
-                    [sequelize.fn('COUNT', sequelize.col('*')), 'count']
-                ],
-                where,
-                group: ['type']
-            })
-
-            responseData = groupedByType
-        } else if (groupBy === 'dayandtype' || groupBy === 'all') {
-            const groupedByDayAndType = await Activity.findAll({
-                attributes: [
-                    [sequelize.fn('DATE', sequelize.col('date')), 'day'],
-                    'type',
-                    [sequelize.fn('SUM', sequelize.col('duration')), 'totalDuration'],
-                    // [sequelize.fn('COUNT', sequelize.col('id')), 'activityCount'],
-                ],
-                group: [sequelize.fn('DATE', sequelize.col('date')), 'type'],
-                order: [[sequelize.fn('DATE', sequelize.col('date')), 'ASC']]
-            })
-
-            responseData = groupedByDayAndType.map((row) => ({
-                day: row.dataValues.day,
-                type: row.type,
-                duration: Number(row.dataValues.totalDuration),
-            }))
+        switch (groupBy) {
+            case 'day':
+                responseData = await fetchGroupedByDay(where)
+                break
+            case 'type':
+                responseData = await fetchGroupedByType(where)
+                break
+            case 'dayandtype':
+            case 'typeandday':
+            case 'all':
+                responseData = await fetchGroupedByDayandType(where)
+                break
+            default:
+                responseData = []
         }
 
         res.json({
             totalActivites,
             totalDuration,
-            mostFrequentType,
             responseData,
         })
-        
-    } catch(err) {
-        res.status(500).json({ error: err.message })
+    } catch (err) {
+        res.status(500).json({error: err.message})
     }
 }
 

@@ -6,12 +6,6 @@ const getAllActivities = async () => {
     return await response.json()
 }
 
-// const fetchStats = async () => {
-//     const response = await fetch(`${API_URL}/stats`)
-//     return await response.json()
-// }
-
 module.exports = {
     getAllActivities,
-    // fetchStats,
 }
